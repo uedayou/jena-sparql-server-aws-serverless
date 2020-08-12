@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: jena-sparql-server-aws-serverless
+
+Globals:
+  Function:
+    Timeout: 30
+  Api:
+    OpenApiVersion: 3.0.2
+    Cors: "'*'"
+
+Resources:
+  JenaServerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: JenaServerFunction
+      Handler: jenaserver.App::handleRequest
+      Runtime: java11
+      MemorySize: 2048
+      Events:
+        JrsLodSparql:
+          Type: Api
+          Properties:
+            Path: /sparql
+            Method: get
+
+Outputs:
+  JenaServerApi:
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/sparql"
+  JenaServerFunction:
+    Value: !GetAtt JenaServerFunction.Arn
+  JenaServerFunctionIamRole:
+    Value: !GetAtt JenaServerFunctionRole.Arn
