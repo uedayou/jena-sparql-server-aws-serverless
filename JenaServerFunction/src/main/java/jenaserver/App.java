@@ -31,19 +31,23 @@ import java.net.URLDecoder;
 public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
   // TDBファイル(Zip圧縮)
-  private final String DatasetType = "tdb";
-  private final String DatasetPath = "isilloddb1/";
-  private final String DatasetFile = "isilloddb1.zip";
+  private static final String DatasetType = "tdb";
+  private static final String DatasetPath = "isilloddb1/";
+  private static final String DatasetFile = "isilloddb1.zip";
 
   // TDBファイル(非圧縮)
-  // private final String DatasetType = "tdb";
-  // private final String DatasetPath = "isilloddb1/";
-  // private final String DatasetFile = "";
+  // private static final String DatasetType = "tdb";
+  // private static final String DatasetPath = "isilloddb1/";
+  // private static final String DatasetFile = "";
 
   // RDFファイル
-  // private final String DatasetType = "TURTLE";
-  // private final String DatasetPath = "";
-  // private final String DatasetFile = "isillod.ttl";
+  // private static final String DatasetType = "TURTLE";
+  // private static final String DatasetPath = "";
+  // private static final String DatasetFile = "isillod.ttl";
+
+  private static final String DbPath = "/tmp/tdb/";
+
+  private static Model model = App.getModel(App.DatasetPath, App.DatasetFile, App.DatasetType);
 
   public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent input, final Context context) {
     Map<String, String> headers = new HashMap<>();
@@ -59,8 +63,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     String queryString = this.getSparqlQuery(params);
 
     if (queryString != null) {
-      Model model = this.getModel(this.DatasetPath, this.DatasetFile, this.DatasetType);
-      ResultSet results = this.execSparqlQuery(queryString, model);
+      ResultSet results = App.execSparqlQuery(queryString, this.model);
       String output = this.getOutputFromResultSet(results, format);
 
       String contentType = this.getContentType(format);
@@ -81,7 +84,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     }
   }
 
-  private ResultSet execSparqlQuery(String queryString, Model model) {
+  private static ResultSet execSparqlQuery(String queryString, Model model) {
     Query query = QueryFactory.create(queryString);
     try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
       ResultSet results = qexec.execSelect();
@@ -104,8 +107,8 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     return output;
   }
 
-  private String copyTdbFiles(String path, String file) {
-    String directory = "/tmp/static/"+path;
+  private static String copyTdbFiles(String path, String file) {
+    String directory = App.DbPath+path;
     if (file != null && file.length()>0) {
       try {
         var target = Paths.get(directory);
@@ -117,7 +120,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
               if (e.isDirectory()) {
                 continue;
               }
-              var dst = Paths.get("/tmp/static/", e.getName());
+              var dst = Paths.get(App.DbPath, e.getName());
               Files.createDirectories(dst.getParent());
               Files.write(dst, in.readAllBytes());
               System.out.printf("inflating: %s%n", dst);
@@ -141,10 +144,10 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     return directory;
   }
 
-  private Model getModel(String path, String file, String type) {
+  private static Model getModel(String path, String file, String type) {
     Model model;
     if (type=="tdb") {
-      String directory = this.copyTdbFiles(path, file);
+      String directory = App.copyTdbFiles(path, file);
       Dataset dataset = TDBFactory.createDataset(directory);
       model = dataset.getDefaultModel();
     } else {
