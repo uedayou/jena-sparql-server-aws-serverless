@@ -1,12 +1,7 @@
 package jenaserver;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -14,15 +9,22 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 
 import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.rdf.model.*;
-import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.query.ResultSetFactory;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.Query;
+
+import java.io.IOException;
 import java.io.ByteArrayOutputStream;
-
-import java.io.File;
-import org.apache.commons.io.FileUtils;
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -34,11 +36,6 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
   private static final String DatasetType = "tdb";
   private static final String DatasetPath = "isilloddb1/";
   private static final String DatasetFile = "isilloddb1.zip";
-
-  // TDBファイル(非圧縮)
-  // private static final String DatasetType = "tdb";
-  // private static final String DatasetPath = "isilloddb1/";
-  // private static final String DatasetFile = "";
 
   // RDFファイル
   // private static final String DatasetType = "TURTLE";
@@ -88,7 +85,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     Query query = QueryFactory.create(queryString);
     try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
       ResultSet results = qexec.execSelect();
-      results = ResultSetFactory.copyResults(results) ;
+      results = ResultSetFactory.copyResults(results);
       return results;
     }
   }
@@ -129,16 +126,6 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         }
       } catch (IOException e) {
         e.printStackTrace();
-      }
-    } else {
-      File srcDir = new File("/var/task/static/"+path);
-      File destDir = new File(directory);
-      if (!destDir.exists()) {
-        try {
-          FileUtils.copyDirectory(srcDir, destDir);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
       }
     }
     return directory;
