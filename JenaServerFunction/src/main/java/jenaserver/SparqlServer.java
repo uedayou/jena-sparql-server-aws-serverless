@@ -27,7 +27,7 @@ import java.util.zip.ZipInputStream;
 
 import java.net.URLDecoder;
 
-public class SparqlServer {
+public class SparqlServer implements ISparqlServer {
   // TDBファイル(Zip圧縮)
   private static final String DatasetType = "tdb";
   private static final String DatasetPath = "isilloddb1/";
