@@ -6,7 +6,7 @@
   "isBase64Encoded": false,
   "queryStringParameters": {
     "foo": "bar",
-    "query": "select%20%28count%28distinct%20%2A%29%20as%20%3Fcount%29%20where%20%7B%20%3Fs%20%3Fp%20%3Fo.%20%7D"
+    "query": "select%20count(*)%20where%7B%3Fs%20%3Fp%20%3Fo.%7D"
   },
   "pathParameters": {
     "proxy": "/sparql"

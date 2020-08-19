@@ -1,37 +1,37 @@
 plugins {
-	id 'java'
+  id 'java'
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-    implementation 'com.amazonaws:aws-lambda-java-core:1.2.0'
-    implementation 'com.amazonaws:aws-lambda-java-events:3.1.0'
-    implementation 'org.apache.jena:jena-core:3.16.0'
-    implementation 'org.apache.jena:jena-arq:3.16.0'
-    implementation 'org.apache.jena:jena-tdb:3.16.0'
+  implementation 'com.amazonaws:aws-lambda-java-core:1.2.0'
+  implementation 'com.amazonaws:aws-lambda-java-events:3.1.0'
+  implementation 'org.apache.jena:jena-core:3.16.0'
+  implementation 'org.apache.jena:jena-arq:3.16.0'
+  implementation 'org.apache.jena:jena-tdb:3.16.0'
 	implementation 'commons-io:commons-io:2.7'
-	runtimeOnly 'org.apache.logging.log4j:log4j-slf4j18-impl:2.13.3'
+  runtimeOnly 'org.apache.logging.log4j:log4j-slf4j18-impl:2.13.3'
 	runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.2.0'
-    testImplementation 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.12'
 }
 
 task copyFile(type: Copy) {
-    from "static"
-    into "../.aws-sam/build/JenaServerFunction/static"
+  from "static"
+  into "../.aws-sam/build/JenaServerFunction/static"
 }
 build.dependsOn copyFile
 
 task buildZip(type: Zip) {
-    from compileJava
-    from processResources
-    into('lib') {
-        from configurations.runtimeClasspath
-    }
-    into('static') {
-    	from 'static'
-    }
+  from compileJava
+  from processResources
+  into('lib') {
+    from configurations.runtimeClasspath
+  }
+  into('static') {
+    from 'static'
+  }
 }
 // build.dependsOn buildZip

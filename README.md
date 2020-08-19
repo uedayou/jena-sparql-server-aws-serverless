@@ -29,12 +29,11 @@ zip -r sparql-db.zip ./sparql-db
 
 ZIP圧縮したファイルを`JenaServerFunction/static/`ディレクトリにコピーしてください。
 
-このファイルを使用できるようにするために`JenaServerFunction/src/main/java/jenaserver/App.js`を以下のように変更してください。
+このファイルを使用できるようにするために`JenaServerFunction/src/main/java/jenaserver/SparqlServer.js`を以下のように変更してください。
 
 ```
 ...
-public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
-
+public class SparqlServer implements ISparqlServer {
   // TDBファイル(Zip圧縮)
   private final String DatasetType = "tdb";
   private final String DatasetPath = "sparql-db/"; // TDBのディレクトリ名
@@ -47,6 +46,8 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
 ```
 JenaServerFunction/static/isilloddb1.zip
 ```
+
+このプロジェクトをビルド、デプロイすると上記データが検索可能なSPARQLエンドポイントが作成できます。
 
 ## デプロイ方法
 
@@ -72,9 +73,9 @@ sam local invoke --event events/event.json
 
 これで以下のSPARQLクエリが実行されます。
 ```
-select (count(distinct *) as ?count) 
+select count(*)
 where {
-  ?s ?p ?o
+  ?s ?p ?o.
 }
 ```
 
