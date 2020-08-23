@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.tdb2.TDB2Factory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.query.ResultSetFormatter;
@@ -28,10 +29,15 @@ import java.util.zip.ZipInputStream;
 import java.net.URLDecoder;
 
 public class SparqlServer implements ISparqlServer {
-  // TDBファイル(Zip圧縮)
+  // TDB(Zip圧縮)
   private static final String DatasetType = "tdb";
   private static final String DatasetPath = "isilloddb1/";
   private static final String DatasetFile = "isilloddb1.zip";
+
+  // TDB2(Zip圧縮)
+  //private static final String DatasetType = "tdb2";
+  //private static final String DatasetPath = "isilloddb2/";
+  //private static final String DatasetFile = "isilloddb2.zip";
 
   // RDFファイル
   // private static final String DatasetType = "TURTLE";
@@ -158,9 +164,13 @@ public class SparqlServer implements ISparqlServer {
 
   private static Model getModel(String path, String file, String type) {
     Model model;
-    if (type=="tdb") {
+    if (type=="tdb" || type=="tdb2") {
       String directory = SparqlServer.copyTdbFiles(path, file);
-      Dataset dataset = TDBFactory.createDataset(directory);
+      Dataset dataset = null;
+      if (type=="tdb2")
+        dataset = TDB2Factory.createDataset(directory);
+      else
+        dataset = TDBFactory.createDataset(directory);
       model = dataset.getDefaultModel();
     } else {
       model = ModelFactory.createDefaultModel();
